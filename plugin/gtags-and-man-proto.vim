@@ -7,7 +7,11 @@
 " This script comes with the help file  doc/gtags-and-man-proto.txt .
 "
 " TODO
+" * gmh : only display hint of curr func in statusline even if in completion mode
 " * hints for the type of the function
+" * remove non-keyword words in completion mode:
+"       myFunc ( {+int_datIntLel+} )    /* not removed */
+"       myFunc ( {+int+} )              /* removed */
 " * using da @g register is not so neat bro
 "   * but is nice ta yank da prototype dat way ya know lel
 " * improve compatibility with Java, PHP and such
@@ -336,6 +340,17 @@ function! s:F_GtagsAndManCompl (  )
 endf
 
 "
+" Put GAMP in statusline mode, process completion and get back to
+" original mode
+"
+function! s:F_GtagsAndManHintOnly (  )
+    let l:n_modePrev = g:GAMP_Mode
+    let g:GAMP_Mode = 2
+    call s:F_GtagsAndManCompl (  )
+    let g:GAMP_Mode = l:n_modePrev
+endf
+
+"
 " Toggle statusline value
 "
 function! s:F_StatusLineToggle ( status )
@@ -362,5 +377,7 @@ command!                    GAMPStatusLineToggle    call <SID>F_StatusLineToggle
 nmap     <unique> <silent>  gmt                     :call <SID>F_StatusLineToggle(-1)<CR>
 command!                    GAMPComplete            call <SID>F_GtagsAndManCompl()
 nmap     <unique> <silent>  gmc                     :call <SID>F_GtagsAndManCompl()<CR>
+nmap     <unique> <silent>  gmh                     :call <SID>F_GtagsAndManHintOnly()<CR>
 inoremap <unique> <silent>  <Leader>gm              <Esc>:call <SID>F_GtagsAndManCompl()<CR>i
+nnoremap <unique> <silent>  <Leader>gm              :call <SID>F_GtagsAndManCompl()<CR>
 

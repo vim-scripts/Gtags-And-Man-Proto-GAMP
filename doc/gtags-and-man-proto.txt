@@ -76,6 +76,8 @@ In |completion-mode| >
 In |statusline-mode|: >
         printf (const char *format, ...)
 <    Is displayed on statusline.
+Statusline is reset to original when file is written, when Vim insert
+mode ends or when you decide it ( see |MAPPING| ).
 
 >>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 |GTAGS|
@@ -151,25 +153,25 @@ vimrc example:
 
 Note: "gm" obviously stands for "_G_tags and _M_an".
 
+<Leader>gm~
+    Complete a function / show hint in statusline depending on mode
+    Note: default mapping of <Leader> is the '\' key
+
 *GAMP-mapping-normal*
 In normal mode:
     gmt~
         Toggle GAMP statusline
     gmc~
-        Complete a function / show hint in statusline
-
-*GAMP-mapping-insert*
-In insert mode:
-    <Leader>gm~
-        Complete a function / show hint in statusline
-        Note: default mapping of <Leader> is the '\' key
+        Complete a function / show hint in statusline depending on mode
+    gmh~
+        Show hint in statusline
 
 *GAMP-commands*
 Commands:
     GAMPStatusLineToggle~
         Toggle GAMP statusline
     GAMPComplete~
-        Complete a function
+        Complete a function / show hint in statusline depending on mode
 
 =======================================================================
 Modeline is:
