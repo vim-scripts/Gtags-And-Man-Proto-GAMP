@@ -1,0 +1,39 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=4946
+
+GAMP is a very lightweight system completion for libc functions and virtually any other functions.
+
+REQUIREMENTS
+  Mandatory:
+    * Linux-like OS with a shell and a manpage system
+    * Vim 'laststatus' must be set to 2
+  Optional:
+    * GNU Global (its use can be disabled)
+
+FEATURES
+  * Perfect for C, C++ and theorically support other C syntax-like languages (PHP, Java)
+  * 3 modes:
+    * Complete function prototype in completion mode
+    * Hint for function prototype in statusline mode
+    * Do all of the above when using both modes
+  * Take definition from all the function manpages from section 2 and 3
+    ( system and library (including libc) calls )
+  * Take definition of any function using GNU Global GTags system
+  * If not using Global GTags, there is no dependency
+  * Real-time updating and no maintenance required if using  gtags.vim  
+    auto-update feature
+
+USAGE EXAMPLE
+In completion mode:
+        printf ||                       /* "||" is the cursor */
+    After pressing <Leader>gm  becomes:
+        print|f| ( {+const_char_pt_format+}, {+VA_Args+} )
+    Use <C-j> to jump to next argument:
+        printf ( ||, {+VA_Args+} )
+        printf ( "GAMP mark: %d/10"||, {+VA_Args+} )
+    And again:
+        printf ( "GAMP mark: %d/10", || )
+        printf ( "GAMP mark: %d/10", 10|| )
+
+In statusline mode:
+        printf (const char *format, ...)
+     Is displayed on statusline.
