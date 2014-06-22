@@ -1,4 +1,4 @@
-*gtags-and-man-proto.txt*   For Vim version 7.0+    Last change: 140522 
+*gtags-and-man-proto.txt*   For Vim version 7.0+    Last change: 140523
 *gtags-and-man-proto*                 
 
 Name~
@@ -152,10 +152,14 @@ vimrc example:
 *GAMP-mapping*
 
 Note: "gm" obviously stands for "_G_tags and _M_an".
+Note: default mapping of <Leader> is the '\' key
 
-<Leader>gm~
-    Complete a function / show hint in statusline depending on mode
-    Note: default mapping of <Leader> is the '\' key
+*GAMP-mapping-insert*
+In insert mode:
+    <Leader>gmc~
+        Complete a function / show hint in statusline depending on mode
+    <Leader>gmh~
+        Show hint in statusline
 
 *GAMP-mapping-normal*
 In normal mode:

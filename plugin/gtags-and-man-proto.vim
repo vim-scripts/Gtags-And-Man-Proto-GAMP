@@ -1,13 +1,12 @@
 " Vim plugin for Linux man 2, 3 and GTags-powered prototype completion.
 "        Author: Sylvain Saubier (ResponSyS), saubiersylvain@gmail.com
 "       Version: 0.5
-" Last Modified: 140522 
+" Last Modified: 140523
 "       License: CC0
 "
 " This script comes with the help file  doc/gtags-and-man-proto.txt .
 "
 " TODO
-" * gmh : only display hint of curr func in statusline even if in completion mode
 " * hints for the type of the function
 " * remove non-keyword words in completion mode:
 "       myFunc ( {+int_datIntLel+} )    /* not removed */
@@ -184,7 +183,7 @@ endf
 " Returns -1 on error
 "
 function! s:F_ProtoLookupMan3 ( pattern )
-    let l:cmd = "man 3 " . a:pattern . " | grep '" . a:pattern . "(' | head -1"
+    let l:cmd = "man 3 " . a:pattern . " | grep '\\<" . a:pattern . "\\>(' | head -1"
     let l:man3_result = system ( "man 3 " . a:pattern . " > /dev/null")
 
     if v:shell_error != 0                   " If man 3 fails
@@ -374,10 +373,12 @@ if has ( "autocmd" ) && !exists ( "s:GAMP_Autocmd" )
     autocmd InsertLeave,BufWritePost *    call <SID>F_StatusLineToggle (0)
     en
 command!                    GAMPStatusLineToggle    call <SID>F_StatusLineToggle(-1)
-nmap     <unique> <silent>  gmt                     :call <SID>F_StatusLineToggle(-1)<CR>
 command!                    GAMPComplete            call <SID>F_GtagsAndManCompl()
+
+nmap     <unique> <silent>  gmt                     :call <SID>F_StatusLineToggle(-1)<CR>
 nmap     <unique> <silent>  gmc                     :call <SID>F_GtagsAndManCompl()<CR>
 nmap     <unique> <silent>  gmh                     :call <SID>F_GtagsAndManHintOnly()<CR>
-inoremap <unique> <silent>  <Leader>gm              <Esc>:call <SID>F_GtagsAndManCompl()<CR>i
-nnoremap <unique> <silent>  <Leader>gm              :call <SID>F_GtagsAndManCompl()<CR>
+
+imap     <unique> <silent>  <Leader>gmc             <Esc>:call <SID>F_GtagsAndManCompl()<CR>i
+imap     <unique> <silent>  <Leader>gmh             <Esc>:call <SID>F_GtagsAndManHintOnly()<CR>i
 
