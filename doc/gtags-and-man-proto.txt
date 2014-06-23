@@ -129,7 +129,7 @@ See: >
         myFunc ({+int_myArg+})      /* GAMP_SpaceAroundArgs == 0 */
 <|g:GAMP_UnloadLoadedBuffer|
     1 : buffer opened by GTags to look for function prototype is 
-        deleted ( with bdelete )
+        deleted ( with bdelete )( unless it's the current file )
 |g:GAMP_StatusLineFmt|
     Format string of the right part of statusline when GAMP is 
     displaying a function prototype ( see 'statusline' )

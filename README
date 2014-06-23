@@ -25,7 +25,7 @@ FEATURES
 USAGE EXAMPLE
 In completion mode:
         printf ||                       /* "||" is the cursor */
-    After pressing <Leader>gm  becomes:
+    After pressing <Leader>gmc  becomes:
         print|f| ( {+const_char_pt_format+}, {+VA_Args+} )
     Use <C-j> to jump to next argument:
         printf ( ||, {+VA_Args+} )

@@ -226,26 +226,29 @@ function! s:F_ProtoLookupGlobal ( pattern )
         en
 
     if l:global_result == '' 
-        let s:s_error = "Tag which matches to " . g:GAMP_Shell_Quote_Char . a:pattern . g:GAMP_Shell_Quote_Char . " not found."
+        let s:s_error = "Tag which matches to " . g:GAMP_Shell_Quote_Char . a:pattern . g:GAMP_Shell_Quote_Char . " not found among GTags."
         return -1
         en
 
     sp                              " Open split window
-    let l:efm = &errorformat        " Go to function definition using QuickFix jump
+    let l:efm = &errorformat        
     let &errorformat = l:gtags_efm
-    cexpr! l:global_result
+    cexpr! l:global_result          " Go to function definition using QuickFix jump
     let &errorformat = l:efm
 
     call search ('(', 'e')
     let l:reg_g = @g
-    let l:reg_quote = @"            " Yank function prototype in @g register
+    let l:reg_quote = @"
+    " Yank function prototype in @g register
     exe 'norm v%"gy'
     let l:protoUnparsed = @g        " Store register @g in a var
     let @g = l:reg_g                " Give back initial values to registers
     let @" = l:reg_quote
 
+    " Delete buffer if set and if file is not the same as the originally active file
     if g:GAMP_UnloadLoadedBuffer == 1
-        bdelete
+        if expand( "%" ) != s:filename
+            bdelete
     else
         q
         en
@@ -282,7 +285,9 @@ function! s:F_GetProto ()
             norm gE
             endw
         en
-    let s:func_name = expand ( "<cword>" )          " now on the last letter of word to complete
+    " now on the last letter of word to complete
+    let s:func_name = expand ( "<cword>" )          " store current word in var
+    let s:filename = expand ( "%" )                 " store current filename in var
 
     let l:func_args = s:F_ProtoLookupMan3 ( s:func_name )
     if  l:func_args == -1                           " if func not known to man 3
