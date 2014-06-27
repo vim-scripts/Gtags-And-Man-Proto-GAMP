@@ -37,3 +37,6 @@ In completion mode:
 In statusline mode:
         printf (const char *format, ...)
      Is displayed on statusline.
+
+NOTES
+  * Functions taking function pointers as arguments are not yet fully supported

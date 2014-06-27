@@ -7,7 +7,9 @@
 " This script comes with the help file  doc/gtags-and-man-proto.txt .
 "
 " TODO
-" * hints for the type of the function
+" * handle multiple definition in one man (see  man clone  )
+" * handle func pointer as arguments (see  man clone  )
+" * hints for the type of the function ( including function pointer ( see  man __free_hook ) )
 " * remove non-keyword words in completion mode:
 "       myFunc ( {+int_datIntLel+} )    /* not removed */
 "       myFunc ( {+int+} )              /* removed */
@@ -122,26 +124,28 @@ endfunction
 "
 " Adds spaces between prototype arguments
 "
-function! s:F_ParseProtoSpace ( s_proto )
+function! s:F_ParseProtoArgs ( s_proto )
     return substitute (a:s_proto, ",", ", ", 'g')
 endf
 
 "
-" Removes extra spaces and newlines
+" Removes newlines, comments and extra spaces 
 "
-function! s:F_ParseProtoGlobal ( s_proto )
+function! s:F_ParseProtoSpace ( s_proto )
     let l:s_protoNew = substitute (a:s_proto, '[\n\r]', "", 'g' )
+    let l:s_protoNew = substitute (l:s_protoNew, '\/[*].*[*]\/', " ", 'g')
     let l:s_protoNew = substitute (l:s_protoNew, '\s\+', " ", 'g')
-    return s:F_ParseProtoSpace ( l:s_protoNew )
+    return s:F_ParseProtoArgs ( l:s_protoNew )
 endf
 
 "
 " Crops function to args with parenthesis
 "
-function! s:F_ParseProtoCrop ( s_proto )
-    let l:s_protoNew = substitute ( a:s_proto, ").*$", ")", '' )
+function! s:F_ParseProtoMan ( s_proto )
+    let l:s_protoNew = substitute ( a:s_proto, ");.*$", ")", '' )
     let l:s_protoNew = substitute ( l:s_protoNew, "^.*(", "(", '' )
     return s:F_ParseProtoSpace ( l:s_protoNew )
+"   return s:F_ParseProtoArgs ( l:s_protoNew )
 endf
 
 "
@@ -167,14 +171,16 @@ endf
 " Returns -1 on error
 "
 function! s:F_ProtoLookupMan2 ( pattern )
-    let l:cmd = "man 2 " . a:pattern . " | grep '" . a:pattern . "(' | head -1"
+"   let l:cmd = "man 2 " . a:pattern . " | grep '\\<" . a:pattern . "\\>(' | head -1"
+    let l:cmd = "man 2 " . a:pattern . " | sed -n '/\\<[a-zA-Z_]*\\> [*]*\(\\?[*]*\<" . a:pattern . "\\>)\\?([^)]/,/);$/p' | uniq"
+    " sed searches for pattern  {type} [*...]{pattern}[)](  until  );"
     let l:man2_result = system ( "man 2 " . a:pattern . " > /dev/null")
 
     if v:shell_error != 0                   " If man 2 fails
         let s:s_error = l:man2_result
         return -1
     else
-        return s:F_ParseProtoCrop ( system ( l:cmd ) )
+        return s:F_ParseProtoMan ( system ( l:cmd ) )
         en
 endf
 
@@ -183,14 +189,16 @@ endf
 " Returns -1 on error
 "
 function! s:F_ProtoLookupMan3 ( pattern )
-    let l:cmd = "man 3 " . a:pattern . " | grep '\\<" . a:pattern . "\\>(' | head -1"
+"   let l:cmd = "man 3 " . a:pattern . " | grep '\\<" . a:pattern . "\\>(' | head -1"
+    let l:cmd = "man 3 " . a:pattern . " | sed -n '/\\<[a-zA-Z_]*\\> [*]*\(\\?[*]*\\<" . a:pattern . "\\>)\\?([^)]/,/);$/p' | uniq"
+    " sed searches for pattern  {type} [*...][(][*...]{pattern}[)](  until  );"
     let l:man3_result = system ( "man 3 " . a:pattern . " > /dev/null")
 
     if v:shell_error != 0                   " If man 3 fails
         let s:s_error = l:man3_result
         return -1
     else
-        return s:F_ParseProtoCrop ( system ( l:cmd ) )
+        return s:F_ParseProtoMan ( system ( l:cmd ) )
         en
 endf
 
@@ -253,7 +261,7 @@ function! s:F_ProtoLookupGlobal ( pattern )
         q
         en
 
-    return s:F_ParseProtoGlobal ( l:protoUnparsed )
+    return s:F_ParseProtoSpace ( l:protoUnparsed )
 endfunction
 
 "
@@ -290,11 +298,19 @@ function! s:F_GetProto ()
     let s:filename = expand ( "%" )                 " store current filename in var
 
     let l:func_args = s:F_ProtoLookupMan3 ( s:func_name )
-    if  l:func_args == -1                           " if func not known to man 3
-        let s:s_errorFull = s:s_error . "; "
+    if  l:func_args == -1 || l:func_args == ""      " if func not in man 3 or nothing returned
+        if l:func_args == -1
+            let s:s_errorFull = s:s_error . "; "
+        else
+            let s:s_errorFull = "No definition found in " . s:func_name . "(3) ; "
+            en
         let l:func_args = s:F_ProtoLookupMan2 ( s:func_name )
-        if l:func_args == -1                            " if func not known to man 2
-            let s:s_errorFull = s:s_errorFull . s:s_error . "; "
+        if l:func_args == -1 || l:func_args == ""   " if func not in man 2 or nothing returned
+            if l:func_args == -1
+                let s:s_errorFull = s:s_errorFull . s:s_error . "; "
+            else
+                let s:s_errorFull =  s:s_errorFull . "No definition found in " . s:func_name . "(2) ; "
+                en
             let l:func_args = s:F_ProtoLookupGlobal ( s:func_name )
             if  l:func_args == -1                           " if func not known to GTags
                 let s:s_errorFull = s:s_errorFull . s:s_error
